@@ -1,0 +1,34 @@
+# Binaries
+/canopy-server
+/canopy-worker
+*.exe
+
+# Environment
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Go
+/vendor/
+/tmp/
+
+# Node (frontend — added in later branch)
+node_modules/
+.next/
+out/
+dist/
+
+# Docker volumes
+postgres_dev_data/
+redis_dev_data/
+meilisearch_dev_data/
+minio_dev_data/
