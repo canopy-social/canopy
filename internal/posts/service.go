@@ -24,18 +24,42 @@ type PostCreatedListener interface {
 	OnPostCreated(ctx context.Context, post *Post)
 }
 
+type PostLikedListener interface {
+	OnPostLiked(ctx context.Context, postID, accountID string)
+}
+
+type PostBoostedListener interface {
+	OnPostBoosted(ctx context.Context, postID, accountID string)
+}
+
 type Service struct {
-	repo      Repository
-	cfg       *config.Config
-	listeners []PostCreatedListener
+	repo           Repository
+	cfg            *config.Config
+	listeners      []PostCreatedListener
+	likeListeners  []PostLikedListener
+	boostListeners []PostBoostedListener
 }
 
 func NewService(repo Repository, cfg *config.Config) *Service {
-	return &Service{repo: repo, cfg: cfg}
+	return &Service{
+		repo:           repo,
+		cfg:            cfg,
+		listeners:      make([]PostCreatedListener, 0),
+		likeListeners:  make([]PostLikedListener, 0),
+		boostListeners: make([]PostBoostedListener, 0),
+	}
 }
 
 func (s *Service) RegisterListener(l PostCreatedListener) {
 	s.listeners = append(s.listeners, l)
+}
+
+func (s *Service) RegisterLikeListener(l PostLikedListener) {
+	s.likeListeners = append(s.likeListeners, l)
+}
+
+func (s *Service) RegisterBoostListener(l PostBoostedListener) {
+	s.boostListeners = append(s.boostListeners, l)
 }
 
 func (s *Service) Create(ctx context.Context, accountID string, params *CreatePostParams) (*Post, error) {
@@ -161,6 +185,9 @@ func (s *Service) Like(ctx context.Context, postID, accountID string) error {
 	if err := s.repo.Like(ctx, postID, accountID); err != nil {
 		return err
 	}
+	for _, l := range s.likeListeners {
+		go l.OnPostLiked(context.Background(), postID, accountID)
+	}
 	return nil
 }
 
@@ -180,7 +207,13 @@ func (s *Service) Boost(ctx context.Context, postID, accountID string) error {
 	if already {
 		return nil
 	}
-	return s.repo.Boost(ctx, postID, accountID)
+	if err := s.repo.Boost(ctx, postID, accountID); err != nil {
+		return err
+	}
+	for _, l := range s.boostListeners {
+		go l.OnPostBoosted(context.Background(), postID, accountID)
+	}
+	return nil
 }
 
 func (s *Service) Unboost(ctx context.Context, postID, accountID string) error {

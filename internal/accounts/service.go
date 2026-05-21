@@ -7,12 +7,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type FollowListener interface {
+	OnFollow(ctx context.Context, followerID, followingID string, status string)
+}
+
 type Service struct {
-	repo Repository
+	repo      Repository
+	listeners []FollowListener
 }
 
 func NewService(repo Repository) *Service {
-	return &Service{repo: repo}
+	return &Service{
+		repo:      repo,
+		listeners: make([]FollowListener, 0),
+	}
+}
+
+func (s *Service) RegisterFollowListener(l FollowListener) {
+	s.listeners = append(s.listeners, l)
 }
 
 func (s *Service) GetByID(ctx context.Context, id string) (*Account, error) {
@@ -65,6 +77,10 @@ func (s *Service) Follow(ctx context.Context, followerID, followingID string) (*
 
 	if err := s.repo.Follow(ctx, followerID, followingID, status); err != nil {
 		return nil, fmt.Errorf("creating follow: %w", err)
+	}
+
+	for _, l := range s.listeners {
+		go l.OnFollow(context.Background(), followerID, followingID, status)
 	}
 
 	if status == "accepted" {
