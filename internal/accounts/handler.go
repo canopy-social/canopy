@@ -42,6 +42,14 @@ func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware func(http.Handler) 
 		r.Post("/api/v1/follow_requests/{id}/authorize", h.AcceptFollowRequest)
 		r.Post("/api/v1/follow_requests/{id}/reject", h.RejectFollowRequest)
 	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(jwtMiddleware)
+		r.Use(auth.RequireRole("admin", "moderator"))
+		r.Get("/api/v1/admin/accounts", h.AdminListAccounts)
+		r.Get("/api/v1/admin/accounts/{id}", h.AdminGetAccount)
+		r.Post("/api/v1/admin/accounts/{id}/action", h.AdminTakeAction)
+	})
 }
 
 func (h *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
@@ -283,4 +291,69 @@ func parseIntParam(r *http.Request, key string, defaultVal int) int {
 		return defaultVal
 	}
 	return v
+}
+
+type AdminActionRequest struct {
+	Type string `json:"type"`
+	Role string `json:"role,omitempty"`
+}
+
+func (h *Handler) AdminListAccounts(w http.ResponseWriter, r *http.Request) {
+	limit := parseIntParam(r, "limit", 40)
+	offset := parseIntParam(r, "offset", 0)
+	accs, err := h.svc.ListLocal(r.Context(), limit, offset)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to list accounts"})
+		return
+	}
+	writeJSON(w, http.StatusOK, accs)
+}
+
+func (h *Handler) AdminGetAccount(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	account, err := h.svc.GetByID(r.Context(), id)
+	if err != nil || account == nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "account not found"})
+		return
+	}
+	writeJSON(w, http.StatusOK, account)
+}
+
+func (h *Handler) AdminTakeAction(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	var req AdminActionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid request body"})
+		return
+	}
+	account, err := h.svc.GetByID(r.Context(), id)
+	if err != nil || account == nil {
+		writeJSON(w, http.StatusNotFound, map[string]string{"error": "account not found"})
+		return
+	}
+	switch req.Type {
+	case "suspend":
+		err = h.svc.SetSuspended(r.Context(), id, true)
+	case "unsuspend":
+		err = h.svc.SetSuspended(r.Context(), id, false)
+	case "silence":
+		err = h.svc.SetSilenced(r.Context(), id, true)
+	case "unsilence":
+		err = h.svc.SetSilenced(r.Context(), id, false)
+	case "change_role":
+		err = h.svc.SetRole(r.Context(), id, req.Role)
+	default:
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid action type"})
+		return
+	}
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		return
+	}
+	updated, err := h.svc.GetByID(r.Context(), id)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to fetch updated account"})
+		return
+	}
+	writeJSON(w, http.StatusOK, updated)
 }

@@ -67,6 +67,9 @@ type Repository interface {
 	UpdateProfile(ctx context.Context, id string, params *UpdateProfileParams) (*Account, error)
 	ListLocal(ctx context.Context, limit, offset int) ([]*Account, error)
 	SearchByUsername(ctx context.Context, query string, limit int) ([]*Account, error)
+	SetSuspended(ctx context.Context, id string, suspended bool) error
+	SetSilenced(ctx context.Context, id string, silenced bool) error
+	SetRole(ctx context.Context, id string, role string) error
 
 	Follow(ctx context.Context, followerID, followingID, status string) error
 	Unfollow(ctx context.Context, followerID, followingID string) error

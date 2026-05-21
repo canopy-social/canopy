@@ -209,3 +209,22 @@ func (s *Service) ListFollowers(ctx context.Context, accountID string, limit, of
 func (s *Service) ListFollowing(ctx context.Context, accountID string, limit, offset int) ([]*Account, error) {
 	return s.repo.ListFollowing(ctx, accountID, limit, offset)
 }
+
+func (s *Service) SetSuspended(ctx context.Context, id string, suspended bool) error {
+	return s.repo.SetSuspended(ctx, id, suspended)
+}
+
+func (s *Service) SetSilenced(ctx context.Context, id string, silenced bool) error {
+	return s.repo.SetSilenced(ctx, id, silenced)
+}
+
+func (s *Service) SetRole(ctx context.Context, id string, role string) error {
+	if role != "admin" && role != "moderator" && role != "user" {
+		return fmt.Errorf("invalid role")
+	}
+	return s.repo.SetRole(ctx, id, role)
+}
+
+func (s *Service) ListLocal(ctx context.Context, limit, offset int) ([]*Account, error) {
+	return s.repo.ListLocal(ctx, limit, offset)
+}
