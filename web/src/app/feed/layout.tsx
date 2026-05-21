@@ -82,6 +82,16 @@ export default function FeedLayout({ children }: { children: React.ReactNode }) 
             </Link>
 
             <Link 
+              href="/feed/theme-editor" 
+              className={`${styles.navItem} ${isActive('/feed/theme-editor') ? styles.navItemActive : ''}`}
+            >
+              <svg className={styles.navIcon} viewBox="0 0 24 24">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+              </svg>
+              <span className={styles.navLabel}>Theme Editor</span>
+            </Link>
+
+            <Link 
               href="/admin" 
               className={`${styles.navItem} ${isActive('/admin') ? styles.navItemActive : ''}`}
             >
