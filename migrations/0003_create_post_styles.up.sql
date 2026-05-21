@@ -1,5 +1,3 @@
--- 0003_create_post_styles.up.sql
--- Per-post custom styling (separate table to keep posts clean).
 
 CREATE TABLE post_styles (
     id              TEXT PRIMARY KEY,

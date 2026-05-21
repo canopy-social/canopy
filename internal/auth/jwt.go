@@ -7,7 +7,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-// Claims represents the JWT claims for an access token.
 type Claims struct {
 	jwt.RegisteredClaims
 	Username string `json:"username"`
@@ -15,13 +14,11 @@ type Claims struct {
 	Role     string `json:"role"`
 }
 
-// JWTService handles JWT token creation and validation.
 type JWTService struct {
 	secret    []byte
 	accessTTL time.Duration
 }
 
-// NewJWTService creates a new JWT service.
 func NewJWTService(secret string, accessTTL time.Duration) *JWTService {
 	return &JWTService{
 		secret:    []byte(secret),
@@ -29,7 +26,6 @@ func NewJWTService(secret string, accessTTL time.Duration) *JWTService {
 	}
 }
 
-// GenerateAccessToken creates a signed JWT access token.
 func (s *JWTService) GenerateAccessToken(accountID, username, domain, role string) (string, error) {
 	now := time.Now()
 	claims := Claims{
@@ -48,7 +44,6 @@ func (s *JWTService) GenerateAccessToken(accountID, username, domain, role strin
 	return token.SignedString(s.secret)
 }
 
-// ValidateAccessToken parses and validates a JWT access token.
 func (s *JWTService) ValidateAccessToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(t *jwt.Token) (interface{}, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {

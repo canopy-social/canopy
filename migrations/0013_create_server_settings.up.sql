@@ -1,4 +1,3 @@
--- 0013_create_server_settings.up.sql
 
 CREATE TABLE server_settings (
     key     TEXT PRIMARY KEY,
@@ -17,7 +16,6 @@ CREATE TABLE server_invites (
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Garden mode positions
 CREATE TABLE garden_positions (
     id              TEXT PRIMARY KEY,
     account_id      TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,

@@ -1,4 +1,3 @@
--- 0005_create_essays.up.sql
 
 CREATE TABLE essays (
     id              TEXT PRIMARY KEY,
@@ -33,7 +32,6 @@ ALTER TABLE essays ADD COLUMN content_tsv TSVECTOR
     GENERATED ALWAYS AS (to_tsvector('english', content_text || ' ' || title)) STORED;
 CREATE INDEX essays_content_tsv ON essays USING GIN (content_tsv);
 
--- Essay marginalia
 CREATE TABLE essay_marginalia (
     id              TEXT PRIMARY KEY,
     essay_id        TEXT NOT NULL REFERENCES essays(id) ON DELETE CASCADE,
@@ -51,6 +49,5 @@ CREATE TABLE essay_marginalia (
 CREATE INDEX marginalia_essay ON essay_marginalia (essay_id, anchor_start);
 CREATE INDEX marginalia_author ON essay_marginalia (essay_id) WHERE is_author_note = TRUE;
 
--- Add FK for media_attachments
 ALTER TABLE media_attachments
     ADD CONSTRAINT fk_media_essay FOREIGN KEY (essay_id) REFERENCES essays(id);

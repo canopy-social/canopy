@@ -1,4 +1,3 @@
--- 0004_create_posts.up.sql
 
 CREATE TABLE posts (
     id              TEXT PRIMARY KEY,
@@ -39,7 +38,6 @@ ALTER TABLE posts ADD COLUMN content_tsv TSVECTOR
     GENERATED ALWAYS AS (to_tsvector('english', content_text)) STORED;
 CREATE INDEX posts_content_tsv ON posts USING GIN (content_tsv);
 
--- Post mentions join table
 CREATE TABLE post_mentions (
     post_id     TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     account_id  TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
@@ -47,7 +45,6 @@ CREATE TABLE post_mentions (
     PRIMARY KEY (post_id, account_id)
 );
 
--- Post tags (hashtags) join table
 CREATE TABLE post_tags (
     post_id     TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
     tag         TEXT NOT NULL,
@@ -56,7 +53,6 @@ CREATE TABLE post_tags (
 
 CREATE INDEX post_tags_tag ON post_tags (tag);
 
--- Likes
 CREATE TABLE post_likes (
     id          TEXT PRIMARY KEY,
     post_id     TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
@@ -66,7 +62,6 @@ CREATE TABLE post_likes (
     UNIQUE (post_id, account_id)
 );
 
--- Boosts (stored as separate records, not as posts with boost_of_id for count tracking)
 CREATE TABLE post_boosts (
     id          TEXT PRIMARY KEY,
     post_id     TEXT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
@@ -76,6 +71,5 @@ CREATE TABLE post_boosts (
     UNIQUE (post_id, account_id)
 );
 
--- Add FKs for media_attachments now that posts exist
 ALTER TABLE media_attachments
     ADD CONSTRAINT fk_media_post FOREIGN KEY (post_id) REFERENCES posts(id);

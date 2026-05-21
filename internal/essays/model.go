@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// Essay is the domain model for a long-form post (AP Article).
 type Essay struct {
 	ID                 string     `json:"id"`
 	URI                string     `json:"uri"`
@@ -30,7 +29,6 @@ type Essay struct {
 	UpdatedAt          time.Time  `json:"updated_at"`
 }
 
-// CreateEssayParams holds input for creating a new essay.
 type CreateEssayParams struct {
 	Title      string  `json:"title"`
 	Subtitle   *string `json:"subtitle,omitempty"`
@@ -41,7 +39,6 @@ type CreateEssayParams struct {
 	Publish    bool    `json:"publish"`
 }
 
-// UpdateEssayParams holds input for updating an essay.
 type UpdateEssayParams struct {
 	Title      *string `json:"title,omitempty"`
 	Subtitle   *string `json:"subtitle,omitempty"`
@@ -51,7 +48,6 @@ type UpdateEssayParams struct {
 	Language   *string `json:"language,omitempty"`
 }
 
-// Repository defines data access for essays.
 type Repository interface {
 	Create(ctx context.Context, essay *Essay) (*Essay, error)
 	GetByID(ctx context.Context, id string) (*Essay, error)

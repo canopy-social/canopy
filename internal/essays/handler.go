@@ -10,19 +10,16 @@ import (
 	"github.com/sumi-devs/canopy-social/canopy/internal/auth"
 )
 
-// Handler handles essay HTTP endpoints.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler creates a new essays handler.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-// RegisterRoutes mounts all essay routes.
 func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware, optionalJWT func(http.Handler) http.Handler) {
-	// Public
+
 	r.Group(func(r chi.Router) {
 		r.Use(optionalJWT)
 		r.Get("/api/v1/essays/{id}", h.GetEssay)
@@ -30,7 +27,6 @@ func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware, optionalJWT func(h
 		r.Get("/api/v1/accounts/{accountID}/essays", h.ListByAccount)
 	})
 
-	// Authenticated
 	r.Group(func(r chi.Router) {
 		r.Use(jwtMiddleware)
 		r.Post("/api/v1/essays", h.CreateEssay)

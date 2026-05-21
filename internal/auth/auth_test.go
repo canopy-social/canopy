@@ -17,7 +17,6 @@ func TestHashAndVerifyPassword(t *testing.T) {
 		t.Fatal("hash should not be empty")
 	}
 
-	// Verify correct password
 	valid, err := VerifyPassword(password, hash)
 	if err != nil {
 		t.Fatalf("VerifyPassword failed: %v", err)
@@ -26,7 +25,6 @@ func TestHashAndVerifyPassword(t *testing.T) {
 		t.Fatal("password should be valid")
 	}
 
-	// Verify wrong password
 	valid, err = VerifyPassword("wrongpassword", hash)
 	if err != nil {
 		t.Fatalf("VerifyPassword failed: %v", err)
@@ -49,7 +47,6 @@ func TestGenerateKeyPair(t *testing.T) {
 		t.Fatal("public key should not be empty")
 	}
 
-	// Ensure they start with correct PEM headers
 	if kp.PrivateKeyPEM[:5] != "-----" {
 		t.Fatal("private key should be PEM formatted")
 	}
@@ -87,7 +84,7 @@ func TestJWTGenerateAndValidate(t *testing.T) {
 }
 
 func TestJWTExpiredToken(t *testing.T) {
-	svc := NewJWTService("test-secret", -1*time.Minute) // negative TTL = already expired
+	svc := NewJWTService("test-secret", -1*time.Minute)
 
 	token, err := svc.GenerateAccessToken("acc1", "bob", "example.com", "user")
 	if err != nil {
@@ -118,11 +115,10 @@ func TestGenerateToken(t *testing.T) {
 		t.Fatalf("GenerateToken failed: %v", err)
 	}
 
-	if len(token) != 64 { // 32 bytes = 64 hex chars
+	if len(token) != 64 {
 		t.Fatalf("expected 64 hex chars, got %d", len(token))
 	}
 
-	// Two tokens should be different
 	token2, _ := GenerateToken(32)
 	if token == token2 {
 		t.Fatal("tokens should be unique")

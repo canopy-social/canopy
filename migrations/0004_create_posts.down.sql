@@ -1,4 +1,3 @@
--- 0004_create_posts.down.sql
 ALTER TABLE media_attachments DROP CONSTRAINT IF EXISTS fk_media_post;
 DROP TABLE IF EXISTS post_boosts;
 DROP TABLE IF EXISTS post_likes;

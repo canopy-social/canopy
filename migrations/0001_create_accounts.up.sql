@@ -1,5 +1,3 @@
--- 0001_create_accounts.up.sql
--- Core accounts table for both local and remote actors.
 
 CREATE TABLE accounts (
     id                  TEXT PRIMARY KEY,

@@ -18,14 +18,13 @@ import (
 )
 
 func main() {
-	// Load configuration
+
 	cfg, err := config.Load()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to load config: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Configure logging
 	if cfg.IsDevelopment() {
 		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
 	} else {
@@ -42,23 +41,19 @@ func main() {
 		Str("env", cfg.Server.Env).
 		Msg("starting canopy server")
 
-	// Build router
 	r := chi.NewRouter()
 
-	// Global middleware
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Timeout(30 * time.Second))
 
-	// Health check
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status":"ok","service":"canopy"}`))
 	})
 
-	// API routes (placeholder — built out in subsequent branches)
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/instance", func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")
@@ -67,7 +62,6 @@ func main() {
 		})
 	})
 
-	// Start server
 	addr := fmt.Sprintf(":%d", cfg.Server.Port)
 	srv := &http.Server{
 		Addr:         addr,
@@ -77,7 +71,6 @@ func main() {
 		IdleTimeout:  120 * time.Second,
 	}
 
-	// Graceful shutdown
 	go func() {
 		log.Info().Str("addr", addr).Msg("listening")
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {

@@ -1,6 +1,4 @@
--- 0008_create_themes.up.sql
 
--- Page themes (one per account)
 CREATE TABLE page_themes (
     id              TEXT PRIMARY KEY,
     account_id      TEXT UNIQUE NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
@@ -28,7 +26,6 @@ CREATE TABLE page_themes (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Theme version history
 CREATE TABLE theme_versions (
     id              TEXT PRIMARY KEY,
     account_id      TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
@@ -40,7 +37,6 @@ CREATE TABLE theme_versions (
 
 CREATE INDEX theme_versions_account ON theme_versions (account_id, created_at DESC);
 
--- Essay themes
 CREATE TABLE essay_themes (
     id              TEXT PRIMARY KEY,
     essay_id        TEXT UNIQUE NOT NULL REFERENCES essays(id) ON DELETE CASCADE,
@@ -56,7 +52,6 @@ CREATE TABLE essay_themes (
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Server-level theme (singleton)
 CREATE TABLE server_theme (
     id              TEXT PRIMARY KEY DEFAULT 'singleton',
     colors          JSONB NOT NULL DEFAULT '{}',

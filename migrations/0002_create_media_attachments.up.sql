@@ -1,5 +1,3 @@
--- 0002_create_media_attachments.up.sql
--- Media must be created before posts/essays since they reference it.
 
 CREATE TABLE media_attachments (
     id              TEXT PRIMARY KEY,

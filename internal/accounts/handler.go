@@ -10,25 +10,21 @@ import (
 	"github.com/sumi-devs/canopy-social/canopy/internal/auth"
 )
 
-// Handler handles account-related HTTP endpoints.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler creates a new accounts handler.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-// RegisterRoutes mounts all account routes on the given router.
 func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware func(http.Handler) http.Handler) {
-	// Public
+
 	r.Get("/api/v1/accounts/{id}", h.GetAccount)
 	r.Get("/api/v1/accounts/{id}/followers", h.ListFollowers)
 	r.Get("/api/v1/accounts/{id}/following", h.ListFollowing)
 	r.Get("/api/v1/accounts/search", h.SearchAccounts)
 
-	// Authenticated
 	r.Group(func(r chi.Router) {
 		r.Use(jwtMiddleware)
 		r.Get("/api/v1/accounts/verify_credentials", h.VerifyCredentials)
@@ -48,12 +44,9 @@ func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware func(http.Handler) 
 	})
 }
 
-// --- Public handlers ---
-
-// GetAccount handles GET /api/v1/accounts/{id}
 func (h *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
-	// Support lookup by username with @ prefix
+
 	var account *Account
 	var err error
 	if len(id) > 0 && id[0] == '@' {
@@ -68,7 +61,6 @@ func (h *Handler) GetAccount(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, account)
 }
 
-// SearchAccounts handles GET /api/v1/accounts/search?q=...&limit=...
 func (h *Handler) SearchAccounts(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query().Get("q")
 	if q == "" {
@@ -84,7 +76,6 @@ func (h *Handler) SearchAccounts(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, accounts)
 }
 
-// ListFollowers handles GET /api/v1/accounts/{id}/followers
 func (h *Handler) ListFollowers(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	limit := parseIntParam(r, "limit", 40)
@@ -97,7 +88,6 @@ func (h *Handler) ListFollowers(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, accounts)
 }
 
-// ListFollowing handles GET /api/v1/accounts/{id}/following
 func (h *Handler) ListFollowing(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	limit := parseIntParam(r, "limit", 40)
@@ -110,9 +100,6 @@ func (h *Handler) ListFollowing(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, accounts)
 }
 
-// --- Authenticated handlers ---
-
-// VerifyCredentials handles GET /api/v1/accounts/verify_credentials
 func (h *Handler) VerifyCredentials(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	account, err := h.svc.GetByID(r.Context(), accountID)
@@ -123,7 +110,6 @@ func (h *Handler) VerifyCredentials(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, account)
 }
 
-// UpdateCredentials handles PATCH /api/v1/accounts/update_credentials
 func (h *Handler) UpdateCredentials(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	var params UpdateProfileParams
@@ -139,7 +125,6 @@ func (h *Handler) UpdateCredentials(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, account)
 }
 
-// Follow handles POST /api/v1/accounts/{id}/follow
 func (h *Handler) Follow(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	targetID := chi.URLParam(r, "id")
@@ -151,7 +136,6 @@ func (h *Handler) Follow(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// Unfollow handles POST /api/v1/accounts/{id}/unfollow
 func (h *Handler) Unfollow(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	targetID := chi.URLParam(r, "id")
@@ -163,7 +147,6 @@ func (h *Handler) Unfollow(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// Block handles POST /api/v1/accounts/{id}/block
 func (h *Handler) Block(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	targetID := chi.URLParam(r, "id")
@@ -175,7 +158,6 @@ func (h *Handler) Block(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// Unblock handles POST /api/v1/accounts/{id}/unblock
 func (h *Handler) Unblock(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	targetID := chi.URLParam(r, "id")
@@ -187,7 +169,6 @@ func (h *Handler) Unblock(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// Mute handles POST /api/v1/accounts/{id}/mute
 func (h *Handler) Mute(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	targetID := chi.URLParam(r, "id")
@@ -199,7 +180,6 @@ func (h *Handler) Mute(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// Unmute handles POST /api/v1/accounts/{id}/unmute
 func (h *Handler) Unmute(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	targetID := chi.URLParam(r, "id")
@@ -211,7 +191,6 @@ func (h *Handler) Unmute(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// GetRelationships handles GET /api/v1/accounts/relationships?id[]=...
 func (h *Handler) GetRelationships(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	ids := r.URL.Query()["id[]"]
@@ -230,7 +209,6 @@ func (h *Handler) GetRelationships(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, relationships)
 }
 
-// ListBlocks handles GET /api/v1/blocks
 func (h *Handler) ListBlocks(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	limit := parseIntParam(r, "limit", 40)
@@ -243,7 +221,6 @@ func (h *Handler) ListBlocks(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, accounts)
 }
 
-// ListMutes handles GET /api/v1/mutes
 func (h *Handler) ListMutes(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	limit := parseIntParam(r, "limit", 40)
@@ -256,7 +233,6 @@ func (h *Handler) ListMutes(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, accounts)
 }
 
-// ListFollowRequests handles GET /api/v1/follow_requests
 func (h *Handler) ListFollowRequests(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	limit := parseIntParam(r, "limit", 40)
@@ -269,7 +245,6 @@ func (h *Handler) ListFollowRequests(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, accounts)
 }
 
-// AcceptFollowRequest handles POST /api/v1/follow_requests/{id}/authorize
 func (h *Handler) AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	followerID := chi.URLParam(r, "id")
@@ -281,7 +256,6 @@ func (h *Handler) AcceptFollowRequest(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, rel)
 }
 
-// RejectFollowRequest handles POST /api/v1/follow_requests/{id}/reject
 func (h *Handler) RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 	accountID := auth.AccountIDFromContext(r.Context())
 	followerID := chi.URLParam(r, "id")
@@ -292,8 +266,6 @@ func (h *Handler) RejectFollowRequest(w http.ResponseWriter, r *http.Request) {
 	rel, _ := h.svc.GetRelationship(r.Context(), accountID, followerID)
 	writeJSON(w, http.StatusOK, rel)
 }
-
-// --- Helpers ---
 
 func writeJSON(w http.ResponseWriter, status int, v interface{}) {
 	w.Header().Set("Content-Type", "application/json")

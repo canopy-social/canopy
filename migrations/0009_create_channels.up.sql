@@ -1,4 +1,3 @@
--- 0009_create_channels.up.sql
 
 CREATE TABLE channels (
     id              TEXT PRIMARY KEY,

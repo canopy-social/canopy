@@ -1,4 +1,3 @@
--- 0012_create_moderation.up.sql
 
 CREATE TABLE reports (
     id              TEXT PRIMARY KEY,

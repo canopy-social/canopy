@@ -5,44 +5,42 @@ import (
 	"time"
 )
 
-// Account is the domain model for a user/actor.
 type Account struct {
-	ID                string     `json:"id"`
-	Username          string     `json:"username"`
-	Domain            *string    `json:"domain,omitempty"`
-	URI               string     `json:"uri"`
-	DisplayName       *string    `json:"display_name,omitempty"`
-	Bio               *string    `json:"bio,omitempty"`
-	BioText           *string    `json:"bio_text,omitempty"`
-	AvatarURL         *string    `json:"avatar_url,omitempty"`
-	HeaderURL         *string    `json:"header_url,omitempty"`
-	Role              string     `json:"role"`
-	IsLocal           bool       `json:"is_local"`
-	IsLocked          bool       `json:"is_locked"`
-	IsBot             bool       `json:"is_bot"`
-	IsSuspended       bool       `json:"-"`
-	IsSilenced        bool       `json:"-"`
-	ActorType         string     `json:"actor_type"`
-	FollowersCount    int        `json:"followers_count"`
-	FollowingCount    int        `json:"following_count"`
-	PostsCount        int        `json:"posts_count"`
-	PublicKeyPEM      string     `json:"-"`
-	PrivateKeyPEM     *string    `json:"-"`
-	KeyID             string     `json:"-"`
-	InboxURL          *string    `json:"-"`
-	OutboxURL         *string    `json:"-"`
-	SharedInboxURL    *string    `json:"-"`
-	FollowersURL      *string    `json:"-"`
-	FollowingURL      *string    `json:"-"`
-	PasswordHash      *string    `json:"-"`
-	Email             *string    `json:"-"`
-	EmailVerifiedAt   *time.Time `json:"-"`
-	CustomDomain      *string    `json:"custom_domain,omitempty"`
-	CreatedAt         time.Time  `json:"created_at"`
-	UpdatedAt         time.Time  `json:"updated_at"`
+	ID              string     `json:"id"`
+	Username        string     `json:"username"`
+	Domain          *string    `json:"domain,omitempty"`
+	URI             string     `json:"uri"`
+	DisplayName     *string    `json:"display_name,omitempty"`
+	Bio             *string    `json:"bio,omitempty"`
+	BioText         *string    `json:"bio_text,omitempty"`
+	AvatarURL       *string    `json:"avatar_url,omitempty"`
+	HeaderURL       *string    `json:"header_url,omitempty"`
+	Role            string     `json:"role"`
+	IsLocal         bool       `json:"is_local"`
+	IsLocked        bool       `json:"is_locked"`
+	IsBot           bool       `json:"is_bot"`
+	IsSuspended     bool       `json:"-"`
+	IsSilenced      bool       `json:"-"`
+	ActorType       string     `json:"actor_type"`
+	FollowersCount  int        `json:"followers_count"`
+	FollowingCount  int        `json:"following_count"`
+	PostsCount      int        `json:"posts_count"`
+	PublicKeyPEM    string     `json:"-"`
+	PrivateKeyPEM   *string    `json:"-"`
+	KeyID           string     `json:"-"`
+	InboxURL        *string    `json:"-"`
+	OutboxURL       *string    `json:"-"`
+	SharedInboxURL  *string    `json:"-"`
+	FollowersURL    *string    `json:"-"`
+	FollowingURL    *string    `json:"-"`
+	PasswordHash    *string    `json:"-"`
+	Email           *string    `json:"-"`
+	EmailVerifiedAt *time.Time `json:"-"`
+	CustomDomain    *string    `json:"custom_domain,omitempty"`
+	CreatedAt       time.Time  `json:"created_at"`
+	UpdatedAt       time.Time  `json:"updated_at"`
 }
 
-// Relationship describes how the current user relates to another account.
 type Relationship struct {
 	ID         string `json:"id"`
 	Following  bool   `json:"following"`
@@ -52,7 +50,6 @@ type Relationship struct {
 	Requested  bool   `json:"requested"`
 }
 
-// UpdateProfileParams holds the fields that can be updated on a profile.
 type UpdateProfileParams struct {
 	DisplayName *string `json:"display_name,omitempty"`
 	Bio         *string `json:"bio,omitempty"`
@@ -60,7 +57,6 @@ type UpdateProfileParams struct {
 	IsBot       *bool   `json:"is_bot,omitempty"`
 }
 
-// Repository defines the data access interface for accounts.
 type Repository interface {
 	GetByID(ctx context.Context, id string) (*Account, error)
 	GetByURI(ctx context.Context, uri string) (*Account, error)
@@ -72,7 +68,6 @@ type Repository interface {
 	ListLocal(ctx context.Context, limit, offset int) ([]*Account, error)
 	SearchByUsername(ctx context.Context, query string, limit int) ([]*Account, error)
 
-	// Follow graph
 	Follow(ctx context.Context, followerID, followingID, status string) error
 	Unfollow(ctx context.Context, followerID, followingID string) error
 	AcceptFollow(ctx context.Context, followerID, followingID string) error
@@ -82,7 +77,6 @@ type Repository interface {
 	ListFollowing(ctx context.Context, accountID string, limit, offset int) ([]*Account, error)
 	ListPendingRequests(ctx context.Context, accountID string, limit, offset int) ([]*Account, error)
 
-	// Blocks and mutes
 	Block(ctx context.Context, accountID, targetID string) error
 	Unblock(ctx context.Context, accountID, targetID string) error
 	IsBlocking(ctx context.Context, accountID, targetID string) (bool, error)
@@ -92,7 +86,6 @@ type Repository interface {
 	ListBlocks(ctx context.Context, accountID string, limit, offset int) ([]*Account, error)
 	ListMutes(ctx context.Context, accountID string, limit, offset int) ([]*Account, error)
 
-	// Counter updates
 	IncrementFollowersCount(ctx context.Context, id string) error
 	DecrementFollowersCount(ctx context.Context, id string) error
 	IncrementFollowingCount(ctx context.Context, id string) error

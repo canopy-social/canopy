@@ -1,4 +1,3 @@
--- 0007_create_activities.up.sql
 
 CREATE TABLE activities (
     id              TEXT PRIMARY KEY,

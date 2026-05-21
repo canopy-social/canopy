@@ -18,18 +18,15 @@ var (
 	slugCleanRe = regexp.MustCompile(`[^a-z0-9]+`)
 )
 
-// Service handles business logic for essays.
 type Service struct {
 	repo Repository
 	cfg  *config.Config
 }
 
-// NewService creates a new essay service.
 func NewService(repo Repository, cfg *config.Config) *Service {
 	return &Service{repo: repo, cfg: cfg}
 }
 
-// Create creates a new essay.
 func (s *Service) Create(ctx context.Context, accountID string, params *CreateEssayParams) (*Essay, error) {
 	if strings.TrimSpace(params.Title) == "" {
 		return nil, fmt.Errorf("title is required")
@@ -41,7 +38,7 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreateEs
 	sanitizedContent := sanitizer.Sanitize(params.Content)
 	plaintext := stripHTML(sanitizedContent)
 	wordCount := countWords(plaintext)
-	readingTime := (wordCount + 249) / 250 // ~250 wpm
+	readingTime := (wordCount + 249) / 250
 
 	slug := generateSlug(params.Title)
 	essayID := ulid.New()
@@ -82,18 +79,16 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreateEs
 	return created, nil
 }
 
-// GetByID returns an essay by ID, incrementing view count.
 func (s *Service) GetByID(ctx context.Context, id string) (*Essay, error) {
 	essay, err := s.repo.GetByID(ctx, id)
 	if err != nil {
 		return nil, err
 	}
-	// Fire-and-forget view increment
+
 	go s.repo.IncrementViews(context.Background(), id)
 	return essay, nil
 }
 
-// GetBySlug returns an essay by account ID and slug.
 func (s *Service) GetBySlug(ctx context.Context, accountID, slug string) (*Essay, error) {
 	essay, err := s.repo.GetBySlug(ctx, accountID, slug)
 	if err != nil {
@@ -103,7 +98,6 @@ func (s *Service) GetBySlug(ctx context.Context, accountID, slug string) (*Essay
 	return essay, nil
 }
 
-// Update updates an essay.
 func (s *Service) Update(ctx context.Context, essayID, accountID string, params *UpdateEssayParams) (*Essay, error) {
 	essay, err := s.repo.GetByID(ctx, essayID)
 	if err != nil {
@@ -115,7 +109,6 @@ func (s *Service) Update(ctx context.Context, essayID, accountID string, params 
 	return s.repo.Update(ctx, essayID, params)
 }
 
-// Publish publishes a draft essay.
 func (s *Service) Publish(ctx context.Context, essayID, accountID string) (*Essay, error) {
 	essay, err := s.repo.GetByID(ctx, essayID)
 	if err != nil {
@@ -127,7 +120,6 @@ func (s *Service) Publish(ctx context.Context, essayID, accountID string) (*Essa
 	return s.repo.Publish(ctx, essayID)
 }
 
-// Unpublish unpublishes a published essay (returns to draft).
 func (s *Service) Unpublish(ctx context.Context, essayID, accountID string) (*Essay, error) {
 	essay, err := s.repo.GetByID(ctx, essayID)
 	if err != nil {
@@ -139,7 +131,6 @@ func (s *Service) Unpublish(ctx context.Context, essayID, accountID string) (*Es
 	return s.repo.Unpublish(ctx, essayID)
 }
 
-// Delete deletes an essay.
 func (s *Service) Delete(ctx context.Context, essayID, accountID string) error {
 	essay, err := s.repo.GetByID(ctx, essayID)
 	if err != nil {
@@ -151,17 +142,13 @@ func (s *Service) Delete(ctx context.Context, essayID, accountID string) error {
 	return s.repo.Delete(ctx, essayID)
 }
 
-// ListByAccount returns published essays for an account.
 func (s *Service) ListByAccount(ctx context.Context, accountID string, limit, offset int) ([]*Essay, error) {
 	return s.repo.ListByAccount(ctx, accountID, limit, offset)
 }
 
-// ListDrafts returns draft essays for an account.
 func (s *Service) ListDrafts(ctx context.Context, accountID string, limit, offset int) ([]*Essay, error) {
 	return s.repo.ListDrafts(ctx, accountID, limit, offset)
 }
-
-// --- Helpers ---
 
 func generateSlug(title string) string {
 	slug := strings.ToLower(title)

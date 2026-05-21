@@ -1,4 +1,3 @@
--- 0006_create_follows.up.sql
 
 CREATE TABLE follows (
     id              TEXT PRIMARY KEY,
@@ -17,7 +16,6 @@ CREATE INDEX follows_following ON follows (following_id, status);
 CREATE INDEX follows_following_accepted ON follows (following_id) WHERE status = 'accepted';
 CREATE INDEX follows_follower_accepted ON follows (follower_id) WHERE status = 'accepted';
 
--- Blocks
 CREATE TABLE blocks (
     id              TEXT PRIMARY KEY,
     account_id      TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
@@ -27,7 +25,6 @@ CREATE TABLE blocks (
     UNIQUE (account_id, target_id)
 );
 
--- Mutes
 CREATE TABLE mutes (
     id              TEXT PRIMARY KEY,
     account_id      TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,

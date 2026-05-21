@@ -7,22 +7,21 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config holds all configuration for the application.
 type Config struct {
-	Server     ServerConfig
-	Database   DatabaseConfig
-	Redis      RedisConfig
-	Search     SearchConfig
-	S3         S3Config
-	Auth       AuthConfig
-	SMTP       SMTPConfig
-	Features   FeaturesConfig
+	Server   ServerConfig
+	Database DatabaseConfig
+	Redis    RedisConfig
+	Search   SearchConfig
+	S3       S3Config
+	Auth     AuthConfig
+	SMTP     SMTPConfig
+	Features FeaturesConfig
 }
 
 type ServerConfig struct {
 	Domain string `mapstructure:"DOMAIN"`
 	Port   int    `mapstructure:"PORT"`
-	Env    string `mapstructure:"ENV"` // development | production
+	Env    string `mapstructure:"ENV"`
 }
 
 type DatabaseConfig struct {
@@ -51,7 +50,7 @@ type S3Config struct {
 }
 
 type AuthConfig struct {
-	JWTSecret     string        `mapstructure:"JWT_SECRET"`
+	JWTSecret       string        `mapstructure:"JWT_SECRET"`
 	AccessTokenTTL  time.Duration `mapstructure:"JWT_ACCESS_TTL"`
 	RefreshTokenTTL time.Duration `mapstructure:"JWT_REFRESH_TTL"`
 }
@@ -73,13 +72,11 @@ type FeaturesConfig struct {
 	MaxVideoMB           int  `mapstructure:"MAX_VIDEO_MB"`
 }
 
-// Load reads configuration from environment variables and .env file.
 func Load() (*Config, error) {
 	viper.SetConfigFile(".env")
 	viper.SetConfigType("env")
 	viper.AutomaticEnv()
 
-	// Set defaults
 	viper.SetDefault("PORT", 8080)
 	viper.SetDefault("ENV", "development")
 	viper.SetDefault("DATABASE_MAX_CONNS", 20)
@@ -98,7 +95,6 @@ func Load() (*Config, error) {
 	viper.SetDefault("MAX_IMAGE_MB", 10)
 	viper.SetDefault("MAX_VIDEO_MB", 100)
 
-	// Read .env file (optional — env vars take precedence)
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
 			return nil, fmt.Errorf("reading config file: %w", err)
@@ -177,7 +173,6 @@ func Load() (*Config, error) {
 	return cfg, nil
 }
 
-// validate checks required configuration values are present.
 func (c *Config) validate() error {
 	if c.Server.Domain == "" {
 		return fmt.Errorf("DOMAIN is required")
@@ -191,12 +186,10 @@ func (c *Config) validate() error {
 	return nil
 }
 
-// IsDevelopment returns true if the server is running in development mode.
 func (c *Config) IsDevelopment() bool {
 	return c.Server.Env == "development"
 }
 
-// BaseURL returns the full base URL for the server (e.g. https://yourdomain.com).
 func (c *Config) BaseURL() string {
 	if c.IsDevelopment() {
 		return fmt.Sprintf("http://localhost:%d", c.Server.Port)

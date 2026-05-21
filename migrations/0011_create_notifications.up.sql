@@ -1,4 +1,3 @@
--- 0011_create_notifications.up.sql
 
 CREATE TABLE notifications (
     id              TEXT PRIMARY KEY,

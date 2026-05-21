@@ -9,15 +9,13 @@ import (
 type contextKey string
 
 const (
-	// ContextKeyAccountID is the context key for the authenticated account ID.
 	ContextKeyAccountID contextKey = "account_id"
-	// ContextKeyUsername is the context key for the authenticated username.
+
 	ContextKeyUsername contextKey = "username"
-	// ContextKeyRole is the context key for the authenticated user's role.
+
 	ContextKeyRole contextKey = "role"
 )
 
-// JWTMiddleware validates the Authorization header and injects claims into context.
 func JWTMiddleware(jwtSvc *JWTService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +46,6 @@ func JWTMiddleware(jwtSvc *JWTService) func(http.Handler) http.Handler {
 	}
 }
 
-// OptionalJWTMiddleware extracts claims if present but does not require authentication.
 func OptionalJWTMiddleware(jwtSvc *JWTService) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -70,7 +67,6 @@ func OptionalJWTMiddleware(jwtSvc *JWTService) func(http.Handler) http.Handler {
 	}
 }
 
-// RequireRole middleware checks that the authenticated user has a required role.
 func RequireRole(roles ...string) func(http.Handler) http.Handler {
 	roleSet := make(map[string]bool, len(roles))
 	for _, r := range roles {
@@ -88,13 +84,11 @@ func RequireRole(roles ...string) func(http.Handler) http.Handler {
 	}
 }
 
-// AccountIDFromContext extracts the account ID from the request context.
 func AccountIDFromContext(ctx context.Context) string {
 	id, _ := ctx.Value(ContextKeyAccountID).(string)
 	return id
 }
 
-// RoleFromContext extracts the role from the request context.
 func RoleFromContext(ctx context.Context) string {
 	role, _ := ctx.Value(ContextKeyRole).(string)
 	return role

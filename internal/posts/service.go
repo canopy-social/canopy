@@ -20,20 +20,26 @@ var (
 	sanitizer = bluemonday.UGCPolicy()
 )
 
-// Service handles business logic for posts.
-type Service struct {
-	repo Repository
-	cfg  *config.Config
+type PostCreatedListener interface {
+	OnPostCreated(ctx context.Context, post *Post)
 }
 
-// NewService creates a new post service.
+type Service struct {
+	repo      Repository
+	cfg       *config.Config
+	listeners []PostCreatedListener
+}
+
 func NewService(repo Repository, cfg *config.Config) *Service {
 	return &Service{repo: repo, cfg: cfg}
 }
 
-// Create creates a new post.
+func (s *Service) RegisterListener(l PostCreatedListener) {
+	s.listeners = append(s.listeners, l)
+}
+
 func (s *Service) Create(ctx context.Context, accountID string, params *CreatePostParams) (*Post, error) {
-	// Validate content
+
 	plaintext := stripHTML(params.Content)
 	if len(plaintext) == 0 {
 		return nil, fmt.Errorf("post content cannot be empty")
@@ -42,21 +48,17 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreatePo
 		return nil, fmt.Errorf("post exceeds max length of %d characters", s.cfg.Features.MaxPostLength)
 	}
 
-	// Validate visibility
 	if !validate.Visibility(params.Visibility) {
 		params.Visibility = "public"
 	}
 
-	// Sanitize HTML
 	sanitizedContent := sanitizer.Sanitize(params.Content)
 
-	// Generate IDs and URIs
 	postID := ulid.New()
 	baseURL := s.cfg.BaseURL()
 	postURI := fmt.Sprintf("%s/posts/%s", baseURL, postID)
 	postURL := postURI
 
-	// Determine thread root
 	var threadRootID *string
 	if params.ReplyToID != nil {
 		parent, err := s.repo.GetByID(ctx, *params.ReplyToID)
@@ -79,7 +81,7 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreatePo
 		ContentWarning: params.ContentWarning,
 		IsSensitive:    params.IsSensitive,
 		Visibility:     params.Visibility,
-		Language:        params.Language,
+		Language:       params.Language,
 		ReplyToID:      params.ReplyToID,
 		ThreadRootID:   threadRootID,
 		IsLocal:        true,
@@ -90,18 +92,15 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreatePo
 		return nil, fmt.Errorf("creating post: %w", err)
 	}
 
-	// Increment reply count on parent
 	if params.ReplyToID != nil {
-		// fire and forget — counter inconsistency is tolerable
+
 		go func() {
 			if err := s.repo.Like(context.Background(), *params.ReplyToID, ""); err != nil {
-				// This is intentionally a no-op placeholder. Reply count increment
-				// will be handled properly when integrated with the full repo.
+
 			}
 		}()
 	}
 
-	// Extract and store mentions
 	mentions := mentionRe.FindAllStringSubmatch(params.Content, -1)
 	for _, m := range mentions {
 		username := m[1]
@@ -110,7 +109,6 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreatePo
 		}
 	}
 
-	// Extract and store hashtags
 	tags := hashtagRe.FindAllStringSubmatch(params.Content, -1)
 	for _, t := range tags {
 		tag := strings.ToLower(t[1])
@@ -119,15 +117,17 @@ func (s *Service) Create(ctx context.Context, accountID string, params *CreatePo
 		}
 	}
 
+	for _, l := range s.listeners {
+		go l.OnPostCreated(context.Background(), created)
+	}
+
 	return created, nil
 }
 
-// GetByID returns a post by ID.
 func (s *Service) GetByID(ctx context.Context, id string) (*Post, error) {
 	return s.repo.GetByID(ctx, id)
 }
 
-// Delete deletes a post (only if owned by the account).
 func (s *Service) Delete(ctx context.Context, postID, accountID string) error {
 	post, err := s.repo.GetByID(ctx, postID)
 	if err != nil {
@@ -139,7 +139,6 @@ func (s *Service) Delete(ctx context.Context, postID, accountID string) error {
 	return s.repo.Delete(ctx, postID)
 }
 
-// Edit updates a post's content (only if owned by the account).
 func (s *Service) Edit(ctx context.Context, postID, accountID string, params *UpdatePostParams) (*Post, error) {
 	post, err := s.repo.GetByID(ctx, postID)
 	if err != nil {
@@ -154,7 +153,6 @@ func (s *Service) Edit(ctx context.Context, postID, accountID string, params *Up
 	return s.repo.Update(ctx, postID, params)
 }
 
-// Like likes a post.
 func (s *Service) Like(ctx context.Context, postID, accountID string) error {
 	already, _ := s.repo.HasLiked(ctx, postID, accountID)
 	if already {
@@ -166,12 +164,10 @@ func (s *Service) Like(ctx context.Context, postID, accountID string) error {
 	return nil
 }
 
-// Unlike removes a like.
 func (s *Service) Unlike(ctx context.Context, postID, accountID string) error {
 	return s.repo.Unlike(ctx, postID, accountID)
 }
 
-// Boost boosts a post.
 func (s *Service) Boost(ctx context.Context, postID, accountID string) error {
 	post, err := s.repo.GetByID(ctx, postID)
 	if err != nil {
@@ -187,12 +183,10 @@ func (s *Service) Boost(ctx context.Context, postID, accountID string) error {
 	return s.repo.Boost(ctx, postID, accountID)
 }
 
-// Unboost removes a boost.
 func (s *Service) Unboost(ctx context.Context, postID, accountID string) error {
 	return s.repo.Unboost(ctx, postID, accountID)
 }
 
-// GetThreadContext returns ancestors and descendants for a post.
 func (s *Service) GetThreadContext(ctx context.Context, postID string) (*ThreadContext, error) {
 	post, err := s.repo.GetByID(ctx, postID)
 	if err != nil {
@@ -203,7 +197,6 @@ func (s *Service) GetThreadContext(ctx context.Context, postID string) (*ThreadC
 	var ancestors []*Post
 	var descendants []*Post
 
-	// Walk up the reply chain for ancestors
 	current := post
 	for current.ReplyToID != nil {
 		parent, err := s.repo.GetByID(ctx2, *current.ReplyToID)
@@ -214,7 +207,6 @@ func (s *Service) GetThreadContext(ctx context.Context, postID string) (*ThreadC
 		current = parent
 	}
 
-	// Get all replies (descendants)
 	if post.ThreadRootID != nil {
 		all, err := s.repo.ListThreadContext(ctx, *post.ThreadRootID)
 		if err == nil {
@@ -237,17 +229,14 @@ func (s *Service) GetThreadContext(ctx context.Context, postID string) (*ThreadC
 	}, nil
 }
 
-// ListByAccount returns posts by an account.
 func (s *Service) ListByAccount(ctx context.Context, accountID string, includeBoosts bool, limit, offset int) ([]*Post, error) {
 	return s.repo.ListByAccount(ctx, accountID, includeBoosts, limit, offset)
 }
 
-// ListPublicTimeline returns the public timeline.
 func (s *Service) ListPublicTimeline(ctx context.Context, limit, offset int) ([]*Post, error) {
 	return s.repo.ListPublicTimeline(ctx, limit, offset)
 }
 
-// SearchByTag returns posts by hashtag.
 func (s *Service) SearchByTag(ctx context.Context, tag string, limit, offset int) ([]*Post, error) {
 	return s.repo.SearchByTag(ctx, strings.ToLower(tag), limit, offset)
 }

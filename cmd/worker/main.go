@@ -25,7 +25,5 @@ func main() {
 		Str("domain", cfg.Server.Domain).
 		Msg("starting canopy worker")
 
-	// Worker implementation will be added in subsequent branches
-	// using hibiken/asynq for Redis-backed job processing.
 	log.Info().Msg("worker: no handlers registered yet — exiting")
 }

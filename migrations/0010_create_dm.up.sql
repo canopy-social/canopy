@@ -1,4 +1,3 @@
--- 0010_create_dm.up.sql
 
 CREATE TABLE dm_conversations (
     id              TEXT PRIMARY KEY,

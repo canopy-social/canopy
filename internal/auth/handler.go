@@ -17,7 +17,6 @@ import (
 	"github.com/sumi-devs/canopy-social/canopy/pkg/validate"
 )
 
-// AccountStore is the interface for account database operations needed by auth.
 type AccountStore interface {
 	GetByEmail(ctx context.Context, email string) (*Account, error)
 	GetByUsername(ctx context.Context, username string) (*Account, error)
@@ -26,7 +25,6 @@ type AccountStore interface {
 	GetByEmailVerifyToken(ctx context.Context, token string) (*Account, error)
 }
 
-// Account represents a minimal account for auth purposes.
 type Account struct {
 	ID            string
 	Username      string
@@ -42,7 +40,6 @@ type Account struct {
 	EmailVerified bool
 }
 
-// Handler handles authentication HTTP endpoints.
 type Handler struct {
 	store      AccountStore
 	jwt        *JWTService
@@ -51,7 +48,6 @@ type Handler struct {
 	refreshTTL time.Duration
 }
 
-// NewHandler creates a new auth handler.
 func NewHandler(store AccountStore, jwt *JWTService, redis *redis.Client, cfg *config.Config) *Handler {
 	return &Handler{
 		store:      store,
@@ -62,8 +58,6 @@ func NewHandler(store AccountStore, jwt *JWTService, redis *redis.Client, cfg *c
 	}
 }
 
-// --- Request/Response types ---
-
 type RegisterRequest struct {
 	Username    string `json:"username"`
 	Email       string `json:"email"`
@@ -72,7 +66,7 @@ type RegisterRequest struct {
 }
 
 type LoginRequest struct {
-	Credential string `json:"credential"` // email or username
+	Credential string `json:"credential"`
 	Password   string `json:"password"`
 }
 
@@ -86,9 +80,6 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
-// --- Handlers ---
-
-// Register handles POST /api/v1/auth/register
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	var req RegisterRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -96,25 +87,21 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate username
 	if err := validate.Username(req.Username); err != nil {
 		writeJSON(w, http.StatusUnprocessableEntity, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	// Validate email
 	if !validate.Email(req.Email) {
 		writeJSON(w, http.StatusUnprocessableEntity, ErrorResponse{Error: "invalid email format"})
 		return
 	}
 
-	// Validate password length
 	if len(req.Password) < 8 {
 		writeJSON(w, http.StatusUnprocessableEntity, ErrorResponse{Error: "password must be at least 8 characters"})
 		return
 	}
 
-	// Check registration is open
 	if !h.cfg.Features.RegistrationOpen {
 		writeJSON(w, http.StatusForbidden, ErrorResponse{Error: "registration is closed"})
 		return
@@ -122,21 +109,18 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	// Check username uniqueness
 	existing, _ := h.store.GetByUsername(ctx, req.Username)
 	if existing != nil {
 		writeJSON(w, http.StatusConflict, ErrorResponse{Error: "username already taken"})
 		return
 	}
 
-	// Check email uniqueness
 	existing, _ = h.store.GetByEmail(ctx, req.Email)
 	if existing != nil {
 		writeJSON(w, http.StatusConflict, ErrorResponse{Error: "email already registered"})
 		return
 	}
 
-	// Hash password
 	passwordHash, err := HashPassword(req.Password)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to hash password")
@@ -144,7 +128,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate RSA key pair for AP
 	keys, err := GenerateKeyPair()
 	if err != nil {
 		log.Error().Err(err).Msg("failed to generate key pair")
@@ -152,7 +135,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate email verification token
 	verifyToken, err := GenerateToken(32)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to generate verify token")
@@ -184,7 +166,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Store verify token (we pass it through the store, but log it in dev)
 	_ = verifyToken
 	if h.cfg.IsDevelopment() {
 		log.Info().
@@ -200,7 +181,6 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Login handles POST /api/v1/auth/login
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -210,7 +190,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	// Find account by email or username
 	var account *Account
 	var err error
 	if validate.Email(req.Credential) {
@@ -224,20 +203,17 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check suspended
 	if account.IsSuspended {
 		writeJSON(w, http.StatusForbidden, ErrorResponse{Error: "account is suspended"})
 		return
 	}
 
-	// Verify password
 	valid, err := VerifyPassword(req.Password, account.PasswordHash)
 	if err != nil || !valid {
 		writeJSON(w, http.StatusUnauthorized, ErrorResponse{Error: "invalid credentials"})
 		return
 	}
 
-	// Generate access token
 	accessToken, err := h.jwt.GenerateAccessToken(
 		account.ID, account.Username, h.cfg.Server.Domain, account.Role,
 	)
@@ -247,7 +223,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate refresh token
 	refreshToken, err := GenerateToken(64)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to generate refresh token")
@@ -255,7 +230,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Store refresh token hash in Redis
 	tokenHash := hashToken(refreshToken)
 	err = h.redis.Set(ctx, "refresh:"+tokenHash, account.ID, h.refreshTTL).Err()
 	if err != nil {
@@ -264,7 +238,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set refresh token as httpOnly cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
@@ -282,7 +255,6 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Refresh handles POST /api/v1/auth/refresh
 func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh_token")
 	if err != nil {
@@ -293,21 +265,17 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	tokenHash := hashToken(cookie.Value)
 
-	// Look up in Redis
 	accountID, err := h.redis.Get(ctx, "refresh:"+tokenHash).Result()
 	if err != nil {
 		writeJSON(w, http.StatusUnauthorized, ErrorResponse{Error: "invalid or expired refresh token"})
 		return
 	}
 
-	// Fetch account to get current role/username
-	account, err := h.store.GetByEmail(ctx, "") // We need a GetByID — use store interface
+	account, err := h.store.GetByEmail(ctx, "")
 	_ = account
 
-	// Delete old refresh token (rotation)
 	h.redis.Del(ctx, "refresh:"+tokenHash)
 
-	// Generate new access token (simplified — in production we'd fetch the full account)
 	accessToken, err := h.jwt.GenerateAccessToken(
 		accountID, "", h.cfg.Server.Domain, "user",
 	)
@@ -316,7 +284,6 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate new refresh token
 	newRefreshToken, err := GenerateToken(64)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, ErrorResponse{Error: "internal error"})
@@ -343,7 +310,6 @@ func (h *Handler) Refresh(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Logout handles POST /api/v1/auth/logout
 func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	cookie, err := r.Cookie("refresh_token")
 	if err == nil {
@@ -351,7 +317,6 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 		h.redis.Del(r.Context(), "refresh:"+tokenHash)
 	}
 
-	// Clear the cookie
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    "",
@@ -365,7 +330,6 @@ func (h *Handler) Logout(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"message": "logged out"})
 }
 
-// VerifyEmail handles POST /api/v1/auth/verify-email
 func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Token string `json:"token"`
@@ -389,8 +353,6 @@ func (h *Handler) VerifyEmail(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, map[string]string{"message": "email verified"})
 }
-
-// --- Helpers ---
 
 func hashToken(token string) string {
 	h := sha256.Sum256([]byte(token))

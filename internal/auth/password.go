@@ -11,17 +11,14 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// Argon2id parameters — OWASP recommended.
 const (
 	argonTime    = 2
-	argonMemory  = 64 * 1024 // 64 MB
+	argonMemory  = 64 * 1024
 	argonThreads = 4
 	argonKeyLen  = 32
 	saltLen      = 16
 )
 
-// HashPassword hashes a password using Argon2id.
-// Returns the encoded hash string: $argon2id$v=19$m=65536,t=2,p=4$<salt>$<hash>
 func HashPassword(password string) (string, error) {
 	salt := make([]byte, saltLen)
 	if _, err := rand.Read(salt); err != nil {
@@ -38,7 +35,6 @@ func HashPassword(password string) (string, error) {
 	return encoded, nil
 }
 
-// VerifyPassword checks a password against an Argon2id hash.
 func VerifyPassword(password, encodedHash string) (bool, error) {
 	var memory uint32
 	var time uint32
@@ -51,7 +47,6 @@ func VerifyPassword(password, encodedHash string) (bool, error) {
 		return false, fmt.Errorf("parsing hash: %w", err)
 	}
 
-	// Split saltHex on '$' to separate salt and hash
 	parts := splitOnDollar(saltHex)
 	if len(parts) != 2 {
 		return false, fmt.Errorf("invalid hash format")
@@ -74,7 +69,7 @@ func VerifyPassword(password, encodedHash string) (bool, error) {
 	if len(computed) != len(expectedHash) {
 		return false, nil
 	}
-	// Constant-time comparison
+
 	result := byte(0)
 	for i := range computed {
 		result |= computed[i] ^ expectedHash[i]
@@ -99,13 +94,11 @@ func splitOnDollar(s string) []string {
 	return parts
 }
 
-// KeyPair holds PEM-encoded RSA keys for an actor.
 type KeyPair struct {
 	PrivateKeyPEM string
 	PublicKeyPEM  string
 }
 
-// GenerateKeyPair generates a 2048-bit RSA key pair for an AP actor.
 func GenerateKeyPair() (*KeyPair, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -132,7 +125,6 @@ func GenerateKeyPair() (*KeyPair, error) {
 	}, nil
 }
 
-// GenerateToken generates a cryptographically random hex token of the given byte length.
 func GenerateToken(byteLength int) (string, error) {
 	b := make([]byte, byteLength)
 	if _, err := rand.Read(b); err != nil {

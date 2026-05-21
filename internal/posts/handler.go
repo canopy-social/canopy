@@ -10,19 +10,16 @@ import (
 	"github.com/sumi-devs/canopy-social/canopy/internal/auth"
 )
 
-// Handler handles post-related HTTP endpoints.
 type Handler struct {
 	svc *Service
 }
 
-// NewHandler creates a new posts handler.
 func NewHandler(svc *Service) *Handler {
 	return &Handler{svc: svc}
 }
 
-// RegisterRoutes mounts all post routes.
 func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware, optionalJWT func(http.Handler) http.Handler) {
-	// Public
+
 	r.Group(func(r chi.Router) {
 		r.Use(optionalJWT)
 		r.Get("/api/v1/posts/{id}", h.GetPost)
@@ -31,7 +28,6 @@ func (h *Handler) RegisterRoutes(r chi.Router, jwtMiddleware, optionalJWT func(h
 		r.Get("/api/v1/timelines/tag/{tag}", h.TagTimeline)
 	})
 
-	// Authenticated
 	r.Group(func(r chi.Router) {
 		r.Use(jwtMiddleware)
 		r.Post("/api/v1/posts", h.CreatePost)
