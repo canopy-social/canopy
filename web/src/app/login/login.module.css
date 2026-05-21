@@ -1,0 +1,89 @@
+.authWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--background-subtle);
+  padding: 24px;
+}
+
+.authCard {
+  width: 100%;
+  max-width: 440px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  padding: 48px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.logoHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.logoHeader h1 {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.logoHeader p {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+}
+
+.errorBox {
+  border: 1px solid var(--border-active);
+  background-color: var(--background-subtle);
+  padding: 14px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--foreground);
+  text-align: center;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inputGroup label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-subtle);
+}
+
+.footerLink {
+  text-align: center;
+  font-size: 13px;
+  color: var(--foreground-subtle);
+}
+
+.footerLink a {
+  font-weight: 700;
+  color: var(--foreground);
+  text-decoration: underline;
+  margin-left: 4px;
+}
+
+.footerLink a:hover {
+  color: var(--foreground-subtle);
+}

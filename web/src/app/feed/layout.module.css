@@ -1,0 +1,207 @@
+.layoutContainer {
+  display: grid;
+  grid-template-columns: 260px 1fr 300px;
+  max-width: 1250px;
+  margin: 0 auto;
+  min-height: 100vh;
+  gap: 0;
+}
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  color: var(--foreground);
+  margin-bottom: 40px;
+  display: block;
+}
+
+.navLinks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  color: var(--foreground-subtle);
+  font-size: 15px;
+  font-weight: 500;
+  transition: var(--transition);
+  border-left: 2px solid transparent;
+}
+
+.navItem:hover, .navItemActive {
+  color: var(--foreground);
+  background-color: var(--background-subtle);
+  border-left-color: var(--border-active);
+}
+
+.navIcon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+  stroke: currentColor;
+  fill: none;
+}
+
+.logoutSection {
+  margin-top: auto;
+}
+
+.logoutBtn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  color: var(--foreground-subtle);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: left;
+  border-left: 2px solid transparent;
+  transition: var(--transition);
+}
+
+.logoutBtn:hover {
+  color: var(--foreground);
+  background-color: var(--background-subtle);
+  border-left-color: var(--border-active);
+}
+
+.mainPanel {
+  min-height: 100vh;
+  padding: 32px 24px;
+}
+
+.widgetsPanel {
+  border-left: 1px solid var(--border);
+  padding: 32px 24px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.widgetCard {
+  border: 1px solid var(--border);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.widgetTitle {
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.trendList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.trendItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.trendTag {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--foreground);
+}
+
+.trendTag:hover {
+  text-decoration: underline;
+}
+
+.trendCount {
+  font-size: 12px;
+  color: var(--foreground-subtle);
+}
+
+.serverStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.statusRow {
+  display: flex;
+  justify-content: space-between;
+  color: var(--foreground-subtle);
+}
+
+.statusVal {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+/* Tablet screens (hide widgets) */
+@media (max-width: 1024px) {
+  .layoutContainer {
+    grid-template-columns: 240px 1fr;
+  }
+  .widgetsPanel {
+    display: none;
+  }
+}
+
+/* Mobile screens (collapsed sidebar) */
+@media (max-width: 640px) {
+  .layoutContainer {
+    grid-template-columns: 70px 1fr;
+  }
+  .sidebar {
+    padding: 24px 8px;
+    align-items: center;
+  }
+  .logo {
+    font-size: 18px;
+    margin-bottom: 30px;
+  }
+  .logoText {
+    display: none;
+  }
+  .navItem {
+    padding: 12px;
+    justify-content: center;
+  }
+  .navLabel {
+    display: none;
+  }
+  .logoutBtn {
+    padding: 12px;
+    justify-content: center;
+  }
+  .logoutLabel {
+    display: none;
+  }
+}

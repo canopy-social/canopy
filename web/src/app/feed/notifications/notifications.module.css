@@ -1,0 +1,99 @@
+.notifHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.notifTitle {
+  font-size: 24px;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.clearBtn {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-subtle);
+  border: 1px solid var(--border);
+  padding: 6px 12px;
+  transition: var(--transition);
+}
+
+.clearBtn:hover {
+  border-color: var(--border-active);
+  color: var(--foreground);
+}
+
+.notifList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notifCard {
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  background-color: var(--surface);
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  transition: var(--transition);
+}
+
+.notifCard:hover {
+  border-color: var(--border-active);
+}
+
+.notifIconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--foreground);
+  flex-shrink: 0;
+}
+
+.notifIcon {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  fill: none;
+}
+
+.notifDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notifMsg {
+  font-size: 14px;
+  color: var(--foreground);
+}
+
+.actorName {
+  font-weight: 700;
+}
+
+.actorName:hover {
+  text-decoration: underline;
+}
+
+.notifSnippet {
+  font-size: 13px;
+  color: var(--foreground-subtle);
+  font-style: italic;
+  margin-top: 4px;
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+}
+
+.notifTime {
+  font-size: 11px;
+  color: var(--muted);
+}

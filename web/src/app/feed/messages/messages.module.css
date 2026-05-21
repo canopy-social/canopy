@@ -1,0 +1,169 @@
+.dmContainer {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  border: 1px solid var(--border);
+  height: calc(100vh - 64px);
+  background-color: var(--surface);
+}
+
+.conversationsList {
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.conversationsHeader {
+  padding: 16px;
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+
+.conversationItem {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+  cursor: pointer;
+  align-items: center;
+}
+
+.conversationItem:hover, .conversationActive {
+  background-color: var(--background-subtle);
+}
+
+.avatarSmall {
+  width: 36px;
+  height: 36px;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.convDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0; /* allows text truncation */
+}
+
+.convName {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--foreground);
+}
+
+.convSnippet {
+  font-size: 12px;
+  color: var(--foreground-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chatArea {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.chatHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chatTitle {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.chatSubtitle {
+  font-size: 12px;
+  color: var(--foreground-subtle);
+}
+
+.messagesStream {
+  flex-grow: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.messageRow {
+  display: flex;
+  width: 100%;
+}
+
+.rowSent {
+  justify-content: flex-end;
+}
+
+.rowReceived {
+  justify-content: flex-start;
+}
+
+.bubble {
+  max-width: 70%;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.bubbleSent {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  border: 1px solid var(--accent);
+}
+
+.bubbleReceived {
+  background-color: var(--background-subtle);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.messageTime {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  text-align: right;
+  display: block;
+}
+
+.bubbleReceived .messageTime {
+  text-align: left;
+}
+
+.composerArea {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 12px;
+}
+
+.composerInput {
+  flex-grow: 1;
+  padding: 12px 16px;
+  background-color: var(--background-subtle);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 14px;
+}
+
+.composerInput:focus {
+  border-color: var(--border-active);
+  background-color: var(--background);
+}

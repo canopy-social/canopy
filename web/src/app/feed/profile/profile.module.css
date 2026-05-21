@@ -1,0 +1,102 @@
+.profileContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.profileCard {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.banner {
+  height: 180px;
+  background-color: var(--background-subtle);
+  border-bottom: 1px solid var(--border);
+}
+
+.profileInfoWrapper {
+  padding: 0 24px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: -40px; /* pull avatar up over banner */
+}
+
+.avatarLarge {
+  width: 80px;
+  height: 80px;
+  background-color: var(--surface);
+  border: 2px solid var(--border-active);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--foreground);
+}
+
+.profileHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.nameHandle {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.displayName {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.handle {
+  font-size: 14px;
+  color: var(--foreground-subtle);
+}
+
+.bio {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--foreground);
+}
+
+.statsRow {
+  display: flex;
+  gap: 24px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.statItem {
+  font-size: 14px;
+  color: var(--foreground-subtle);
+}
+
+.statVal {
+  font-weight: 700;
+  color: var(--foreground);
+  margin-right: 4px;
+}
+
+.sectionHeader {
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-top: 16px;
+}

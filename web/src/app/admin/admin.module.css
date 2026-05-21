@@ -1,0 +1,160 @@
+.adminContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+
+.adminHeader {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adminTitle {
+  font-size: 28px;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+}
+
+.backBtn {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-subtle);
+  border: 1px solid var(--border);
+  padding: 8px 16px;
+  transition: var(--transition);
+}
+
+.backBtn:hover {
+  border-color: var(--border-active);
+  color: var(--foreground);
+}
+
+.tabBar {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 1px;
+}
+
+.tabBtn {
+  padding: 12px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground-subtle);
+  border-bottom: 2px solid transparent;
+  transition: var(--transition);
+}
+
+.tabBtn:hover {
+  color: var(--foreground);
+}
+
+.tabActive {
+  color: var(--foreground);
+  border-bottom-color: var(--border-active);
+}
+
+.sectionCard {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionTitle {
+  font-family: var(--font-display);
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+/* Tables and lists styling */
+.adminTable {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.adminTable th, .adminTable td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.adminTable th {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--foreground-subtle);
+}
+
+.adminTable tr:hover td {
+  background-color: var(--background-subtle);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badgeActive {
+  background-color: var(--background-subtle);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.badgeSuspended {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+  border: 1px solid var(--accent);
+}
+
+.badgeSilenced {
+  background-color: var(--background-subtle);
+  color: var(--foreground-subtle);
+  border: 1px dashed var(--border);
+}
+
+/* Form layouts */
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.actionButton {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  transition: var(--transition);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.actionButton:hover {
+  border-color: var(--border-active);
+  background-color: var(--background-subtle);
+}

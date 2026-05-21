@@ -1,0 +1,89 @@
+.threadContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.parentWrapper {
+  position: relative;
+}
+
+.threadLine {
+  position: absolute;
+  left: 47px;
+  top: 50%;
+  bottom: -24px;
+  width: 2px;
+  background-color: var(--border);
+  z-index: 1;
+}
+
+.focusedPost {
+  z-index: 2;
+  position: relative;
+}
+
+.focusedBody {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--foreground);
+  margin: 16px 0;
+  font-weight: 500;
+}
+
+.focusedTime {
+  font-size: 13px;
+  color: var(--foreground-subtle);
+}
+
+.statsDivider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 16px 0;
+}
+
+.focusedStats {
+  display: flex;
+  gap: 24px;
+  font-size: 14px;
+  color: var(--foreground-subtle);
+}
+
+.focusedStats strong {
+  color: var(--foreground);
+}
+
+.replyComposer {
+  border: 1px solid var(--border);
+  background-color: var(--surface);
+  padding: 20px;
+}
+
+.replyTextarea {
+  width: 100%;
+  min-height: 80px;
+  background-color: transparent;
+  border: none;
+  resize: none;
+  color: var(--foreground);
+  font-size: 15px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.repliesList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repliesHeader {
+  font-family: var(--font-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--foreground);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-top: 16px;
+}
