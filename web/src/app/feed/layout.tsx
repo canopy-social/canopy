@@ -105,6 +105,29 @@ export default function FeedLayout({ children }: { children: React.ReactNode }) 
             </Link>
 
             <Link 
+              href="/feed/theme-gallery" 
+              className={`${styles.navItem} ${isActive('/feed/theme-gallery') ? styles.navItemActive : ''}`}
+            >
+              <svg className={styles.navIcon} viewBox="0 0 24 24">
+                <path d="M4 4h16v16H4zM9 9h6v6H9z" />
+              </svg>
+              <span className={styles.navLabel}>Theme Gallery</span>
+            </Link>
+
+            <Link 
+              href="/feed/garden" 
+              className={`${styles.navItem} ${isActive('/feed/garden') ? styles.navItemActive : ''}`}
+            >
+              <svg className={styles.navIcon} viewBox="0 0 24 24">
+                <circle cx="7" cy="7" r="3" />
+                <circle cx="17" cy="7" r="3" />
+                <circle cx="7" cy="17" r="3" />
+                <circle cx="17" cy="17" r="3" />
+              </svg>
+              <span className={styles.navLabel}>Garden Mode</span>
+            </Link>
+
+            <Link 
               href="/admin" 
               className={`${styles.navItem} ${isActive('/admin') ? styles.navItemActive : ''}`}
             >
