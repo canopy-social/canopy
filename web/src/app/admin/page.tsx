@@ -35,7 +35,17 @@ interface InviteCode {
 }
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'accounts' | 'reports' | 'blocks' | 'invites' | 'settings'>('accounts');
+  const [activeTab, setActiveTab] = useState<'accounts' | 'reports' | 'blocks' | 'invites' | 'settings' | 'server_theme'>('accounts');
+
+  const [serverThemeColors, setServerThemeColors] = useState({
+    background: '#ffffff',
+    surface: '#f8f8f8',
+    text_primary: '#111111',
+    text_secondary: '#555555',
+    accent: '#0066ff',
+    border: '#e0e0e0',
+  });
+  const [serverBgType, setServerBgType] = useState('color');
 
   // Accounts state
   const [accounts, setAccounts] = useState<UserAccount[]>([
@@ -137,6 +147,7 @@ export default function AdminDashboard() {
         <button onClick={() => setActiveTab('blocks')} className={`${styles.tabBtn} ${activeTab === 'blocks' ? styles.tabActive : ''}`}>Instance Blocks</button>
         <button onClick={() => setActiveTab('invites')} className={`${styles.tabBtn} ${activeTab === 'invites' ? styles.tabActive : ''}`}>Invite Codes</button>
         <button onClick={() => setActiveTab('settings')} className={`${styles.tabBtn} ${activeTab === 'settings' ? styles.tabActive : ''}`}>Server Settings</button>
+        <button onClick={() => setActiveTab('server_theme')} className={`${styles.tabBtn} ${activeTab === 'server_theme' ? styles.tabActive : ''}`}>Server Theme</button>
       </div>
 
       {/* Accounts Tab */}
@@ -384,6 +395,52 @@ export default function AdminDashboard() {
                 onChange={(e) => setSettings({ ...settings, maxVideoMB: parseInt(e.target.value) || 0 })}
               />
             </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'server_theme' && (
+        <div className={styles.sectionCard}>
+          <h2 className={styles.sectionTitle}>Instance Server Theme</h2>
+          <p style={{ fontSize: '13px', color: 'var(--foreground-subtle)', marginBottom: '20px' }}>
+            Default theme applied to all users who have not set a custom theme. Users with &quot;Inherit Server Theme&quot; enabled will inherit these values.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+            {Object.entries(serverThemeColors).map(([key, val]) => (
+              <div key={key} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--foreground-subtle)' }}>
+                  {key.replace(/_/g, ' ')}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '4px', border: '1px solid var(--border)', backgroundColor: val, position: 'relative', overflow: 'hidden' }}>
+                    <input
+                      type="color"
+                      value={val}
+                      onChange={(e) => setServerThemeColors(prev => ({ ...prev, [key]: e.target.value }))}
+                      style={{ opacity: 0, position: 'absolute', inset: '0', width: '100%', height: '100%', cursor: 'pointer' }}
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    className="input-field"
+                    value={val}
+                    onChange={(e) => setServerThemeColors(prev => ({ ...prev, [key]: e.target.value }))}
+                    style={{ fontSize: '12px', fontFamily: 'monospace', padding: '4px 8px', width: '100px' }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '20px' }}>
+            <span style={{ fontSize: '11px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--foreground-subtle)', display: 'block', marginBottom: '6px' }}>Background Type</span>
+            <select className="input-field" style={{ width: '200px' }} value={serverBgType} onChange={(e) => setServerBgType(e.target.value)}>
+              <option value="color">Solid Color</option>
+              <option value="gradient">Gradient</option>
+              <option value="image">Image</option>
+            </select>
+          </div>
+          <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border)' }}>
+            <button className="btn-primary" style={{ fontSize: '12px', padding: '8px 24px' }}>APPLY SERVER THEME</button>
           </div>
         </div>
       )}
